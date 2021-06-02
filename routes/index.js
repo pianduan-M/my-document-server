@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs')
 // 引入jwt token工具
 const JwtUtil = require('../public/utils/jwt');
 
@@ -9,15 +10,12 @@ const TagsModel = require("../db/index").TagsModel
 const ResourcesModel = require("../db/index").ResourcesModel
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
-});
 // 登入
 router.post('/api/login', function (req, res, next) {
   const { username, password } = req.body
   new Promise((resolve, reject) => {
     // 根据用户名查询用户
-    UserModel.findOne({ 'username': username }).exec((err, result) => {
+    UserModel.findOne({'username':username}).exec((err, result) => {
       if (err) {
         reject(err);
       } else {

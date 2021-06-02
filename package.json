@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "^3.1.6",
@@ -16,5 +17,8 @@
     "mongoose": "^5.12.5",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.7"
+  },
+  "devDependencies": {
+    "compression": "^1.7.4"
   }
 }
