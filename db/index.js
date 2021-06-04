@@ -36,6 +36,7 @@ const tagsSchema = mongoose.Schema({
 })
 const TagsModel = mongoose.model('tags', tagsSchema)
 exports.TagsModel = TagsModel
+
 // 网站导航
 const ResourcesSchema = mongoose.Schema({
   name: { type: String, require: true },
@@ -43,16 +44,3 @@ const ResourcesSchema = mongoose.Schema({
 })
 const ResourcesModel = mongoose.model('resources', ResourcesSchema)
 exports.ResourcesModel = ResourcesModel
-
-
-function deletea() {
-  ResourcesModel.findOne({ name: 'UI官网' }, (err, ress) => {
-    ress.children.splice(0, 7)
-    ress.save(err => {
-      if (!err) {
-        console.log('删除成功');
-      }
-    })
-  })
-}
-

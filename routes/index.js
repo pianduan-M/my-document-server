@@ -15,7 +15,7 @@ router.post('/api/login', function (req, res, next) {
   const { username, password } = req.body
   new Promise((resolve, reject) => {
     // 根据用户名查询用户
-    UserModel.findOne({'username':username}).exec((err, result) => {
+    UserModel.findOne({ 'username': username }).exec((err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -126,8 +126,6 @@ router.get('/api/docment/all', function (req, res, next) {
         const { id, title, createTime, tags, desc } = item
         return { id, title, createTime, tags, desc }
       })
-      console.log(docs.length);
-
       const result = {
         code: 0,
         total: docs.length,
@@ -163,11 +161,44 @@ router.post('/api/admin/add-tag', function (req, res, next) {
 router.get('/api/search', function (req, res, next) {
   const { keyword } = req.query
   const reg = new RegExp(keyword, 'i')
-  DocModel.find({ "$or": [{ title: { $regex: reg } }, { tags: { $regex: reg } }] }, { _id: 0, menuList: 0, tags: 0, content: 0 }, (err, docs) => {
-    if (!err) {
-      res.send({ code: 0, result: docs })
-    }
+
+  const docsRes = new Promise((resolve, reject) => {
+    DocModel.find({ "$or": [{ title: { $regex: reg } }, { tags: { $regex: reg } }] }, { _id: 0, menuList: 0, tags: 0, content: 0 }, (err, docs) => {
+      if (!err) {
+        resolve(docs)
+      } else {
+        reject(err)
+      }
+    })
   })
+
+  const collects = new Promise((resolve, reject) => {
+    ResourcesModel.findOne({ name: '收藏文章' }, (err, collect) => {
+      if (!err) {
+        const result = collect.children.filter(art => {
+          return reg.test(art.name)
+        });
+        resolve(result)
+      } else {
+        reject(err)
+      }
+    })
+  })
+
+  Promise.all([docsRes, collects]).then(result => {
+    res.send({
+      code: 0, result: {
+        docs: result[0],
+        collectArticles: result[1]
+      }
+    })
+  })
+    .catch(err => {
+      res.send({
+        code: 1,
+        msg: 'no fond'
+      })
+    })
 })
 // 根据tag 搜索文档
 router.get('/api/search/tag', function (req, res, next) {
@@ -182,7 +213,6 @@ router.get('/api/search/tag', function (req, res, next) {
 // 添加资源导航分类
 router.post('/api/admin/resources/add_cate', function (req, res, next) {
   const { name } = req.body
-  console.log(name);
   ResourcesModel.findOne({ name }, (err, resourcesCate) => {
     if (!resourcesCate) {
       const newResources = {
@@ -289,5 +319,6 @@ router.post("/api/admin/resources/update", function (req, res, next) {
     }
   })
 })
+
 
 module.exports = router;
